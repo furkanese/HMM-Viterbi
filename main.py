@@ -6,8 +6,9 @@ alphabetDict = {
 	'o': 14, 'p': 15, 'q': 16, 'r': 17, 's': 18, 't': 19, 'u': 20, 'v': 21, 'w': 22, 'x': 23, 'y': 24, 'z': 25
 	}
 
-testSize = 20000
+testSize = 5
 wordSize = 1
+alphabetSize = 26
 testCounter = 0
 #first column is label , second column is data
 testData = np.zeros([testSize,2])
@@ -64,9 +65,36 @@ trainSecondWord.append(tmpFlWord)
 f.close()
 
 #data is taken, building matricecs
+trainSize = trainFirstWord.__len__()
+firstStateProbablitiy = np.zeros([alphabetSize, 1])
+transitionProbability = np.zeros([alphabetSize, alphabetSize])
+emissionProbability = np.zeros(([alphabetSize, alphabetSize]))
 
-for a in trainFirstWord:
-    print a[0]
 
+for word in trainFirstWord:
+    firstStateProbablitiy[alphabetDict[word[0]]] += 1
+    for i in range(0, (word.__len__() - 1 )):
+        first = alphabetDict[word[i]]
+        second = alphabetDict[word[i+1]]
+        transitionProbability[first][second] += 1
 
+for i in range(0,trainSize):
+    firstWord = trainFirstWord[i]
+    secondWord = trainSecondWord[i]
+    for j in range(0,firstWord.__len__()):
+        if(firstWord[j] != secondWord[j]):
+            first = alphabetDict[firstWord[j]]
+            second = alphabetDict[secondWord[j]]
+            emissionProbability[first][second] += 1
 
+for i in range(0, alphabetSize):
+    totTran = np.sum(transitionProbability[i])
+    if totTran != 0:
+        for j in range(0, alphabetSize):
+            transitionProbability[i][j] = transitionProbability[i][j] / totTran
+    totEm = np.sum(emissionProbability[i])
+    if totEm != 0:
+        for j in range(0, alphabetSize):
+            emissionProbability[i][j] = emissionProbability[i][j] / totEm
+
+print('aq')
