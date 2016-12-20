@@ -11,6 +11,8 @@ wordSize = 1
 testCounter = 0
 #first column is label , second column is data
 testData = np.zeros([testSize,2])
+testWords = []
+testLabels = []
 
 
 with open('docs.data') as f:
@@ -21,15 +23,28 @@ with open('docs.data') as f:
 f.close()
 print wordSize
 
+tmpTrWord = ''
+tmpFlWord = ''
+
 with open('docs.data') as f:
     reader = csv.reader(f, delimiter=' ')
     for row in reader:
-        if (testCounter < testSize) and ((row[0] != '_' and row[1] != '_') and (row[0] != '.' and row[1] != '.')):
-            testData[testCounter][0] = alphabetDict[row[0]]
-            testData[testCounter][1] = alphabetDict[row[1]]
-            testCounter += 1
+        if (testCounter < testSize) :
+            if (row[0] != '_' and row[1] != '_') and (row[0] != '.' and row[1] != '.'):
+                testData[testCounter][0] = alphabetDict[row[0]]
+                testData[testCounter][1] = alphabetDict[row[1]]
+                tmpTrWord += row[0]
+                tmpFlWord += row[1]
+            else:
+                testCounter += 1
+                testWords.append(tmpFlWord)
+                testLabels.append(tmpTrWord)
+                tmpTrWord = ''
+                tmpFlWord = ''
 f.close()
 
-print(testData)
+for row in testWords:
+    print(row)
+
 
 
