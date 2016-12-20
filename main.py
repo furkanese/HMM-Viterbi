@@ -11,14 +11,20 @@ wordSize = 1
 testCounter = 0
 #first column is label , second column is data
 testData = np.zeros([testSize,2])
+
 testWords = []
 testLabels = []
+
+trainFirstWord = []
+trainSecondWord = []
+
+# dokumandaki '..',  '_ _' olarak degistirildi
 
 
 with open('docs.data') as f:
     reader = csv.reader(f, delimiter=' ')
     for row in reader:
-        if (row[0] == '_' and row[1] == '_') or (row[0] == '.' and row[1] == '.'):
+        if (row[0] == '_' and row[1] == '_'):
             wordSize += 1
 f.close()
 print wordSize
@@ -30,9 +36,10 @@ with open('docs.data') as f:
     reader = csv.reader(f, delimiter=' ')
     for row in reader:
         if (testCounter < testSize) :
-            if (row[0] != '_' and row[1] != '_') and (row[0] != '.' and row[1] != '.'):
-                testData[testCounter][0] = alphabetDict[row[0]]
-                testData[testCounter][1] = alphabetDict[row[1]]
+            if (row[0] != '_' and row[1] != '_'):
+            ## taking first 20k words as TEST
+                #testData[testCounter][0] = alphabetDict[row[0]]
+                #testData[testCounter][1] = alphabetDict[row[1]]
                 tmpTrWord += row[0]
                 tmpFlWord += row[1]
             else:
@@ -41,10 +48,25 @@ with open('docs.data') as f:
                 testLabels.append(tmpTrWord)
                 tmpTrWord = ''
                 tmpFlWord = ''
+        else:
+            if (row[0] != '_' and row[1] != '_'):
+            ## taking remaining words as TRAIN
+                tmpTrWord += row[0]
+                tmpFlWord += row[1]
+            else:
+                trainFirstWord.append(tmpTrWord)
+                trainSecondWord.append(tmpFlWord)
+                tmpTrWord = ''
+                tmpFlWord = ''
+#last word is also added
+trainFirstWord.append(tmpTrWord)
+trainSecondWord.append(tmpFlWord)
 f.close()
 
-for row in testWords:
-    print(row)
+#data is taken, building matricecs
+
+for a in trainFirstWord:
+    print a[0]
 
 
 
