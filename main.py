@@ -13,7 +13,7 @@ convertDict = {
     , 14:'o', 15:'p', 16:'q', 17:'r', 18:'s', 19:'t', 20:'u', 21:'v', 22:'w', 23:'x', 24:'y', 25:'z'
 }
 
-testSize = 5
+testSize = 20000
 wordSize = 1
 alphabetSize = 26
 testCounter = 0
@@ -30,7 +30,7 @@ trainSecondWord = []
 
 
 def viterbi(query, firstStateProbabilitiy,transitionProbability,emissionProbability):
-    sigmaMtr = np.zeros([query.__len__(), alphabetSize])
+    sigmaMtr = np.zeros([query.__len__(), alphabetSize],dtype=float)
     for i in range(0, len(firstStateProbabilitiy)):
         plc = alphabetDict[query[0]]
         sigmaMtr[0][i] = firstStateProbabilitiy[i] * emissionProbability[plc][i]
@@ -42,8 +42,7 @@ def viterbi(query, firstStateProbabilitiy,transitionProbability,emissionProbabil
                 tmp = sigmaMtr[i-1][k] * transitionProbability[k][j]
                 if tmp > maxValue:
                     maxValue = tmp
-            plc = alphabetDict[query[i]]
-            sigmaMtr[i][j]  = max * emissionProbability[i][j]
+            sigmaMtr[i][j]  = maxValue * emissionProbability[i][j]
     newWord = ''
     for i in range(0, query.__len__()):
         ind = np.argmax(sigmaMtr[i])
@@ -51,7 +50,7 @@ def viterbi(query, firstStateProbabilitiy,transitionProbability,emissionProbabil
     return newWord
 
 
-with open('short.data') as f:
+with open('docs.data') as f:
     reader = csv.reader(f, delimiter=' ')
     for row in reader:
         if (row[0] == '_' and row[1] == '_'):
@@ -62,7 +61,7 @@ print wordSize
 tmpTrWord = ''
 tmpFlWord = ''
 
-with open('short.data') as f:
+with open('docs.data') as f:
     reader = csv.reader(f, delimiter=' ')
     for row in reader:
         if (testCounter < testSize) :
@@ -72,8 +71,8 @@ with open('short.data') as f:
                 #testData[testCounter][1] = alphabetDict[row[1]]
                 tmpTrWord += row[0]
                 tmpFlWord += row[1]
-            else:
                 testCounter += 1
+            else:
                 testWords.append(tmpFlWord)
                 testLabels.append(tmpTrWord)
                 tmpTrWord = ''
@@ -126,7 +125,13 @@ for i in range(0, alphabetSize):
         for j in range(0, alphabetSize):
             emissionProbability[i][j] = emissionProbability[i][j] / totEm
 
+trCount = 0
+i = 0
 for word in testWords:
     new = viterbi(word,firstStateProbabilitiy,transitionProbability,emissionProbability)
-    print word
-    print new
+    if new == testLabels[i]:
+        trCount += 1
+    i += 1
+
+ratio = trCount / len(testWords)
+print ratio
