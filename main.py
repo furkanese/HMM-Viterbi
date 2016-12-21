@@ -30,10 +30,12 @@ trainSecondWord = []
 
 
 def viterbi(query, firstStateProbabilitiy,transitionProbability,emissionProbability):
+
     sigmaMtr = np.zeros([query.__len__(), alphabetSize],dtype=float)
     for i in range(0, len(firstStateProbabilitiy)):
         plc = alphabetDict[query[0]]
         sigmaMtr[0][i] = firstStateProbabilitiy[i] * emissionProbability[plc][i]
+        #sigmaMtr[0][i] = firstStateProbabilitiy[i] * transitionProbability[plc][i]
 
     for i in range(1, query.__len__()):
         for j in range (0, alphabetSize):
@@ -66,7 +68,7 @@ with open('docs.data') as f:
     for row in reader:
         if (testCounter < testSize) :
             if (row[0] != '_' and row[1] != '_'):
-            ## taking first 20k words as TEST
+            ## taking first 20k chars as TEST
                 #testData[testCounter][0] = alphabetDict[row[0]]
                 #testData[testCounter][1] = alphabetDict[row[1]]
                 tmpTrWord += row[0]
@@ -77,6 +79,17 @@ with open('docs.data') as f:
                 testLabels.append(tmpTrWord)
                 tmpTrWord = ''
                 tmpFlWord = ''
+        elif(testCounter < testSize):
+            if (row[0] != '_' and row[1] != '_'):
+            ## 20K chars are taken for test, finishing taking test data by completing last word
+                tmpTrWord += row[0]
+                tmpFlWord += row[1]
+            else:
+                testWords.append(tmpFlWord)
+                testLabels.append(tmpTrWord)
+                tmpTrWord = ''
+                tmpFlWord = ''
+                testCounter += 1
         else:
             if (row[0] != '_' and row[1] != '_'):
             ## taking remaining words as TRAIN
@@ -132,6 +145,7 @@ for word in testWords:
     if new == testLabels[i]:
         trCount += 1
     i += 1
+    print(word,new)
 
 ratio = trCount / len(testWords)
 print ratio
