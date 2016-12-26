@@ -1,3 +1,4 @@
+from __future__ import division
 import numpy as np
 import csv
 
@@ -32,11 +33,13 @@ trainSecondWord = []
 def viterbi(query, firstStateProbabilitiy,transitionProbability,emissionProbability):
 
     sigmaMtr = np.zeros([query.__len__(), alphabetSize],dtype=float)
-    for i in range(0, len(firstStateProbabilitiy)):
+    #Fist values with pi matrix
+    plc = alphabetDict[query[0]]
+    for i in range(0, alphabetSize):
         plc = alphabetDict[query[0]]
         sigmaMtr[0][i] = firstStateProbabilitiy[i] * emissionProbability[plc][i]
-        #sigmaMtr[0][i] = firstStateProbabilitiy[i] * transitionProbability[plc][i]
 
+    #second half
     for i in range(1, query.__len__()):
         for j in range (0, alphabetSize):
             maxValue = 0
@@ -44,7 +47,8 @@ def viterbi(query, firstStateProbabilitiy,transitionProbability,emissionProbabil
                 tmp = sigmaMtr[i-1][k] * transitionProbability[k][j]
                 if tmp > maxValue:
                     maxValue = tmp
-            sigmaMtr[i][j]  = maxValue * emissionProbability[i][j]
+            plc = alphabetDict[query[i]]
+            sigmaMtr[i][j]  = maxValue * emissionProbability[plc][j]
     newWord = ''
     for i in range(0, query.__len__()):
         ind = np.argmax(sigmaMtr[i])
@@ -79,7 +83,7 @@ with open('docs.data') as f:
                 testLabels.append(tmpTrWord)
                 tmpTrWord = ''
                 tmpFlWord = ''
-        elif(testCounter < testSize):
+        elif(testCounter == testSize):
             if (row[0] != '_' and row[1] != '_'):
             ## 20K chars are taken for test, finishing taking test data by completing last word
                 tmpTrWord += row[0]
@@ -119,14 +123,23 @@ for word in trainFirstWord:
         second = alphabetDict[word[i+1]]
         transitionProbability[first][second] += 1
 
+totFirst = np.sum(firstStateProbabilitiy,axis=0)
+for i in range(0,alphabetSize):
+    if totFirst != 0:
+        firstStateProbabilitiy[i] = firstStateProbabilitiy[i] / totFirst
+
 for i in range(0,trainSize):
     firstWord = trainFirstWord[i]
     secondWord = trainSecondWord[i]
     for j in range(0,firstWord.__len__()):
+        first = alphabetDict[firstWord[j]]
+        second = alphabetDict[secondWord[j]]
+        emissionProbability[first][second] += 1
+        '''
         if(firstWord[j] != secondWord[j]):
             first = alphabetDict[firstWord[j]]
             second = alphabetDict[secondWord[j]]
-            emissionProbability[first][second] += 1
+            emissionProbability[first][second] += 1'''
 
 for i in range(0, alphabetSize):
     totTran = np.sum(transitionProbability[i])
@@ -147,5 +160,6 @@ for word in testWords:
     i += 1
     print(word,new)
 
+print(trCount)
 ratio = trCount / len(testWords)
 print ratio
